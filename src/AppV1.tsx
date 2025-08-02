@@ -513,7 +513,7 @@ const ExpenseCalculator: React.FC = () => {
   };
 
   const formatCurrency = (amount: number): string => {
-    return `₹${amount.toLocaleString()}`;
+    return `₹{amount.toLocaleString()}`;
   };
 
   const getNetBalanceClass = (net: number): string => {
@@ -715,7 +715,7 @@ const ExpenseCalculator: React.FC = () => {
                       </div>
                     </td>
                     <td
-                      className={`border-2 border-black p-3 bg-white font-medium ${isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                      className={`border-2 border-black p-3 bg-white font-medium ₹{isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                       onClick={() => handleCellClick(tx.id, 'description', tx.description)}
                     >
                       {editingCell?.txId === tx.id && editingCell?.field === 'description' ? (
@@ -726,7 +726,7 @@ const ExpenseCalculator: React.FC = () => {
                       ) : tx.description}
                     </td>
                     <td
-                      className={`border-2 border-black p-3 bg-white font-semibold ${isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                      className={`border-2 border-black p-3 bg-white font-semibold  ₹{isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                       onClick={() => handleCellClick(tx.id, 'amount', tx.amount)}
                     >
                       {editingCell?.txId === tx.id && editingCell?.field === 'amount' ? (
@@ -738,7 +738,7 @@ const ExpenseCalculator: React.FC = () => {
                       ) : formatCurrency(tx.amount)}
                     </td>
                     <td
-                      className={`border-2 border-black p-3 bg-white ${isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                      className={`border-2 border-black p-3 bg-white  ₹{isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                       onClick={() => handleCellClick(tx.id, 'receivedBy', tx.receivedBy)}
                     >
                       {editingCell?.txId === tx.id && editingCell?.field === 'receivedBy' ? (
@@ -751,7 +751,7 @@ const ExpenseCalculator: React.FC = () => {
                       ) : tx.receivedBy}
                     </td>
                     <td
-                      className={`border-2 border-black p-3 bg-white ${isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                      className={`border-2 border-black p-3 bg-white  ₹{isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                       onClick={() => handleCellClick(tx.id, 'paidBy', tx.paidBy)}
                     >
                       {editingCell?.txId === tx.id && editingCell?.field === 'paidBy' ? (
@@ -764,7 +764,7 @@ const ExpenseCalculator: React.FC = () => {
                       ) : tx.paidBy}
                     </td>
                     <td
-                      className={`border-2 border-black p-3 bg-white ${isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                      className={`border-2 border-black p-3 bg-white  ₹{isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                       onClick={() => handleCellClick(tx.id, 'status', tx.status)}
                     >
                       {editingCell?.txId === tx.id && editingCell?.field === 'status' ? (
@@ -775,31 +775,31 @@ const ExpenseCalculator: React.FC = () => {
                           field="status"
                         />
                       ) : (
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusClass(tx.status)}`}>
+                        <span className={`px-3 py-1 rounded-full text-xs font-bold border  ₹{getStatusClass(tx.status)}`}>
                           {tx.status}
                         </span>
                       )}
                     </td>
-                    <td className={`border-2 border-black p-3 font-semibold ${getLiabilityClass(karanCalc.liability)}`}>
+                    <td className={`border-2 border-black p-3 font-semibold  ₹{getLiabilityClass(karanCalc.liability)}`}>
                       {formatCurrency(Math.abs(karanCalc.liability))}
                     </td>
-                    <td className={`border-2 border-black p-3 font-semibold ${getLiabilityClass(prabeeCalc.liability)}`}>
+                    <td className={`border-2 border-black p-3 font-semibold  ₹{getLiabilityClass(prabeeCalc.liability)}`}>
                       {formatCurrency(Math.abs(prabeeCalc.liability))}
                     </td>
-                    <td className={`border-2 border-black p-3 font-semibold ${getLiabilityClass(garvitCalc.liability)}`}>
+                    <td className={`border-2 border-black p-3 font-semibold  ₹{getLiabilityClass(garvitCalc.liability)}`}>
                       {formatCurrency(Math.abs(garvitCalc.liability))}
                     </td>
-                    <td className={`border-2 border-black p-3 font-bold ${getNetBalanceClass(karanCalc.net)}`}>
+                    <td className={`border-2 border-black p-3 font-bold  ₹{getNetBalanceClass(karanCalc.net)}`}>
                       {karanCalc.net >= 0 ? '+' : ''}{formatCurrency(Math.abs(karanCalc.net))}
                     </td>
-                    <td className={`border-2 border-black p-3 font-bold ${getNetBalanceClass(prabeeCalc.net)}`}>
+                    <td className={`border-2 border-black p-3 font-bold  ₹{getNetBalanceClass(prabeeCalc.net)}`}>
                       {prabeeCalc.net >= 0 ? '+' : ''}{formatCurrency(Math.abs(prabeeCalc.net))}
                     </td>
-                    <td className={`border-2 border-black p-3 font-bold ${getNetBalanceClass(garvitCalc.net)}`}>
+                    <td className={`border-2 border-black p-3 font-bold  ₹{getNetBalanceClass(garvitCalc.net)}`}>
                       {garvitCalc.net >= 0 ? '+' : ''}{formatCurrency(Math.abs(garvitCalc.net))}
                     </td>
                     <td
-                      className={`border-2 border-black p-3 bg-white text-sm ${isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                      className={`border-2 border-black p-3 bg-white text-sm  ₹{isEditMode ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                       onClick={() => handleCellClick(tx.id, 'notes', tx.notes)}
                     >
                       {editingCell?.txId === tx.id && editingCell?.field === 'notes' ? (
@@ -841,7 +841,7 @@ const ExpenseCalculator: React.FC = () => {
         <div className="flex justify-center gap-4 mb-8 flex-wrap">
           <button
             onClick={toggleEditMode}
-            className={`px-6 py-3 rounded-full font-bold transition-all border-2 border-black flex items-center gap-2 ${isEditMode
+            className={`px-6 py-3 rounded-full font-bold transition-all border-2 border-black flex items-center gap-2  ₹{isEditMode
                 ? 'bg-black text-white hover:bg-white hover:text-black'
                 : 'bg-white text-black hover:bg-black hover:text-white'
               }`}
@@ -911,27 +911,27 @@ const ExpenseCalculator: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Total Paid Out:</span>
-                  <span className={`font-bold ${data.paid > 0 ? 'text-green-600' : 'text-black'}`}>
+                  <span className={`font-bold  ₹{data.paid > 0 ? 'text-green-600' : 'text-black'}`}>
                     {formatCurrency(data.paid)}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Total Liability:</span>
-                  <span className={`font-bold ${data.liability > 0 ? 'text-red-600' : 'text-black'}`}>
+                  <span className={`font-bold  ₹{data.liability > 0 ? 'text-red-600' : 'text-black'}`}>
                     {formatCurrency(data.liability)}
                   </span>
                 </div>
 
                 <div className="flex justify-between items-center">
                   <span className="text-gray-700">Total Receivables:</span>
-                  <span className={`font-bold ${data.receivables > 0 ? 'text-green-600' : 'text-black'}`}>
+                  <span className={`font-bold  ₹{data.receivables > 0 ? 'text-green-600' : 'text-black'}`}>
                     {formatCurrency(data.receivables)}
                   </span>
                 </div>
 
-                <div className={`p-4 rounded-lg text-center border-2 border-black ${data.totalNet >= 0 ? 'bg-green-200' : 'bg-red-200'}`}>
-                  <div className={`text-lg font-bold ${data.totalNet >= 0 ? 'text-green-800' : 'text-red-800'}`}>
+                <div className={`p-4 rounded-lg text-center border-2 border-black  ₹{data.totalNet >= 0 ? 'bg-green-200' : 'bg-red-200'}`}>
+                  <div className={`text-lg font-bold  ₹{data.totalNet >= 0 ? 'text-green-800' : 'text-red-800'}`}>
                     Net Balance: {data.totalNet >= 0 ? '+' : ''}{formatCurrency(Math.abs(data.totalNet))}
                   </div>
                   <div className="text-sm text-gray-700 mt-1 font-semibold">
