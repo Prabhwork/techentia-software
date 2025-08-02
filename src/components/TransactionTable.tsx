@@ -56,7 +56,7 @@ type TransactionType = 'Expense' | 'Receivable' | 'Payable';
 type TransactionStatus = 'Pending' | 'Completed' | 'Cancelled';
 type ActiveTab = 'transactions' | 'partners';
 
-export default function TransactionTable(){
+export default function TransactionTable() {
   // Common state
   const [activeTab, setActiveTab] = useState<ActiveTab>('transactions');
   const [transactionReceivedBy, setTransactionReceivedBy] = useState('');
@@ -177,14 +177,15 @@ export default function TransactionTable(){
     return { liability, net, share };
   };
 
-  // CRUD operations for Partners
-  const handlePartnerSubmit = (e: FormEvent) => {
-    e.preventDefault();
+  const handlePartnerSubmit = async (e: FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setMessage(null);
 
+  try {
     const newEquity = parseFloat(partnerEquity);
     if (isNaN(newEquity) || newEquity <= 0 || newEquity > 1) {
-      alert('Equity must be between 0 and 1');
-      return;
+      throw new Error('Equity must be between 0 and 1');
     }
 
     const totalEquity = partners.reduce((sum, p) => sum + p.equity, 0);
@@ -197,22 +198,53 @@ export default function TransactionTable(){
         ...p,
         equity: p.equity * (1 - newEquity),
       }));
+
+      // Update existing partners in Firebase
+      const updatePromises = updatedPartners.map(partner => 
+        updateDoc(doc(db, 'partners', partner.id), {
+          equity: partner.equity
+        })
+      );
+      await Promise.all(updatePromises);
+
     } else if (totalEquity + newEquity > 1) {
-      alert(`Only ${(1 - totalEquity).toFixed(2)} equity left to assign`);
-      return;
+      throw new Error(`Only ${(1 - totalEquity).toFixed(2)} equity left to assign`);
     }
 
+    // Create new partner object
+    const newPartnerData = {
+      name: partnerName.trim(),
+      equity: newEquity,
+      createdAt: serverTimestamp()
+    };
+
+    // Add to Firebase
+    const docRef = await addDoc(collection(db, 'partners'), newPartnerData);
+
+    // Create partner with Firebase ID
     const newPartner = {
-      id: Date.now().toString(),
-      name: partnerName,
+      id: docRef.id,
+      name: partnerName.trim(),
       equity: newEquity,
     };
 
+    // Update local state
     setPartners([...updatedPartners, newPartner]);
     setPartnerName('');
     setPartnerEquity('');
-  };
-
+    
+    setMessage({ text: 'Partner added successfully!', type: 'success' });
+    
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Something went wrong';
+    setMessage({
+      text: errorMessage,
+      type: 'error',
+    });
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleTransactionSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
     e.preventDefault();
