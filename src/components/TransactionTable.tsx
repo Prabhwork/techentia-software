@@ -208,7 +208,7 @@ export default function TransactionTable() {
       await Promise.all(updatePromises);
 
     } else if (totalEquity + newEquity > 1) {
-      throw new Error(`Only ${(1 - totalEquity).toFixed(2)} equity left to assign`);
+      throw new Error(`Only ₹{(1 - totalEquity).toFixed(2)} equity left to assign`);
     }
 
     // Create new partner object
