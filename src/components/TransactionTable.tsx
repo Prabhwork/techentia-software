@@ -56,7 +56,7 @@ type TransactionType = 'Expense' | 'Receivable' | 'Payable';
 type TransactionStatus = 'Pending' | 'Completed' | 'Cancelled';
 type ActiveTab = 'transactions' | 'partners';
 
-export default function TransactionTable(): JSX.Element {
+export default function TransactionTable(){
   // Common state
   const [activeTab, setActiveTab] = useState<ActiveTab>('transactions');
   const [transactionReceivedBy, setTransactionReceivedBy] = useState('');
