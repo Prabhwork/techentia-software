@@ -1,4 +1,5 @@
-import React, { useState, useEffect, FormEvent } from 'react';
+import React, { useState, useEffect,  } from 'react';
+import type { FormEvent } from 'react';
 import { addExpense, getExpenses } from '../services/ExpenseService';
 import { db } from '../Firebase/Config';
 import { collection, addDoc, serverTimestamp, getDocs, query, orderBy } from 'firebase/firestore';

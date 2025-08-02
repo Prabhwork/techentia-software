@@ -1,4 +1,5 @@
-import React, { useState, useEffect, FormEvent } from 'react';
+import React, { useState, useEffect,  } from 'react';
+import type { FormEvent } from 'react';
 import { db } from '../Firebase/Config';
 import { 
   collection, 
