@@ -1,11 +1,10 @@
-import React, { useState, useEffect,  } from 'react';
+import  { useState, useEffect,  } from 'react';
 import type { FormEvent } from 'react';
 import { db } from '../Firebase/Config';
 import { 
   collection, 
   addDoc, 
   serverTimestamp, 
-  getDocs, 
   query, 
   orderBy, 
   doc, 
@@ -13,7 +12,7 @@ import {
   deleteDoc,
   onSnapshot 
 } from 'firebase/firestore';
-import { Trash2, Edit3, Save, X, Plus } from 'lucide-react';
+import { Trash2, Edit3,  X,  } from 'lucide-react';
 
 // Interfaces
 interface Partner {
@@ -21,7 +20,6 @@ interface Partner {
   name: string;
   equity: number; // Changed from percentage to equity for consistency
 }
-
 
 
 interface Transaction {
@@ -520,27 +518,33 @@ const [showCustomInput, setShowCustomInput] = useState(false);
   </label>
 
   <div className="space-y-2">
-    {partners.map((partner) => (
-      <label
-        key={partner.id}
-        className="flex items-center space-x-2 text-gray-800"
-      >
-        <input
-          type="checkbox"
-          value={partner.name}
-          checked={transactionPaidBy.includes(partner.name)}
-          onChange={(e) => {
-            const { value, checked } = e.target;
-            setTransactionPaidBy((prev) =>
-              checked ? [...prev, value] : prev.filter((name) => name !== value)
-            );
-          }}
-          className="form-checkbox h-4 w-4 text-blue-600"
-        />
-        <span>{partner.name}</span>
-      </label>
-    ))}
-  </div>
+  {partners.map((partner) => (
+    <label
+      key={partner.id}
+      className="flex items-center space-x-2 text-gray-800"
+    >
+      <input
+        type="checkbox"
+        value={partner.name}
+        checked={transactionPaidBy.includes(partner.name)}
+        onChange={(e) => {
+  const { value, checked } = e.target;
+  setTransactionPaidBy((prev) => {
+    if (checked) {
+      return prev.includes(value) ? prev : [...prev, value];
+    } else {
+      return prev.filter((name) => name !== value);
+    }
+  });
+}}
+        className="form-checkbox h-4 w-4 text-blue-600"
+      />
+      <span>{partner.name}</span>
+    </label>
+  ))}
+</div>
+
+
 </div>
 
               </div>
@@ -804,7 +808,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                         
                         {partners.map((partner) => {
                           const calc = calculatePersonLiability(transaction, partner.id);
-                          const displayValue = transaction.type === 'Payable' ? calc.liability : calc.net;
+                           
                           return (
                             <td key={partner.id} className={`px-4 py-3 font-semibold text-center  ₹{getNetBalanceClass(displayValue)}`}>
                               {transaction.type === 'Expense' && (

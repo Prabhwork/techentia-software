@@ -1,4 +1,4 @@
-import React, { useState,  } from 'react';
+import  { useState,  } from 'react';
 import type { FormEvent } from 'react';
 import { db } from '../Firebase/Config';
 import { collection, addDoc } from 'firebase/firestore';
