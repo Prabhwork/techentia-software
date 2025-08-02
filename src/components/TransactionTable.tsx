@@ -1,18 +1,18 @@
-import  { useState, useEffect,  } from 'react';
+import { useState, useEffect, } from 'react';
 import type { FormEvent } from 'react';
 import { db } from '../Firebase/Config';
-import { 
-  collection, 
-  addDoc, 
-  serverTimestamp, 
-  query, 
-  orderBy, 
-  doc, 
-  updateDoc, 
+import {
+  collection,
+  addDoc,
+  serverTimestamp,
+  query,
+  orderBy,
+  doc,
+  updateDoc,
   deleteDoc,
-  onSnapshot 
+  onSnapshot
 } from 'firebase/firestore';
-import { Trash2, Edit3,  X,  } from 'lucide-react';
+import { Trash2, Edit3, X, } from 'lucide-react';
 
 // Interfaces
 interface Partner {
@@ -54,16 +54,16 @@ interface EditingCell {
 
 type TransactionType = 'Expense' | 'Receivable' | 'Payable';
 type TransactionStatus = 'Pending' | 'Completed' | 'Cancelled';
-type ActiveTab =  'transactions' | 'partners';
+type ActiveTab = 'transactions' | 'partners';
 
 export default function TransactionTable(): JSX.Element {
   // Common state
   const [activeTab, setActiveTab] = useState<ActiveTab>('transactions');
   const [transactionReceivedBy, setTransactionReceivedBy] = useState('');
-const [customPartnerName, setCustomPartnerName] = useState('');
-const [showCustomInput, setShowCustomInput] = useState(false);
+  const [customPartnerName, setCustomPartnerName] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
 
-  
+
   const [loading, setLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<Message | null>(null);
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
@@ -75,15 +75,15 @@ const [showCustomInput, setShowCustomInput] = useState(false);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   // Form state for expenses
-  
+
 
   // Form state for transactions
   const [transactionDescription, setTransactionDescription] = useState<string>('');
   const [transactionAmount, setTransactionAmount] = useState<string>('');
   const [transactionType, setTransactionType] = useState<TransactionType>('Expense');
   const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>('Pending');
-  const [transactionPaidBy, setTransactionPaidBy] = useState<string>('');
- 
+  const [transactionPaidBy, setTransactionPaidBy] = useState<string[]>([]);
+
   const [transactionNotes, setTransactionNotes] = useState<string>('');
 
   // Form state for partners
@@ -93,12 +93,12 @@ const [showCustomInput, setShowCustomInput] = useState(false);
   useEffect(() => {
     // Set up real-time listeners
     const unsubscribePartners = setupPartnersListener();
-   
+
     const unsubscribeTransactions = setupTransactionsListener();
 
     return () => {
       unsubscribePartners();
-     
+
       unsubscribeTransactions();
     };
   }, []);
@@ -120,8 +120,8 @@ const [showCustomInput, setShowCustomInput] = useState(false);
     });
   };
 
-  
- 
+
+
 
   const setupTransactionsListener = () => {
     const q = query(collection(db, 'transactions'), orderBy('createdAt', 'desc'));
@@ -152,7 +152,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
     }).format(amount);
   };
 
- 
+
 
 
 
@@ -179,39 +179,39 @@ const [showCustomInput, setShowCustomInput] = useState(false);
 
   // CRUD operations for Partners
   const handlePartnerSubmit = (e: FormEvent) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const newEquity = parseFloat(partnerEquity);
-  if (isNaN(newEquity) || newEquity <= 0 || newEquity > 1) {
-    alert('Equity must be between 0 and 1');
-    return;
-  }
+    const newEquity = parseFloat(partnerEquity);
+    if (isNaN(newEquity) || newEquity <= 0 || newEquity > 1) {
+      alert('Equity must be between 0 and 1');
+      return;
+    }
 
-  const totalEquity = partners.reduce((sum, p) => sum + p.equity, 0);
+    const totalEquity = partners.reduce((sum, p) => sum + p.equity, 0);
 
-  let updatedPartners = [...partners];
+    let updatedPartners = [...partners];
 
-  if (totalEquity >= 1) {
-    // Reduce existing partners' equity proportionally
-    updatedPartners = updatedPartners.map((p) => ({
-      ...p,
-      equity: p.equity * (1 - newEquity),
-    }));
-  } else if (totalEquity + newEquity > 1) {
-    alert(`Only ${(1 - totalEquity).toFixed(2)} equity left to assign`);
-    return;
-  }
+    if (totalEquity >= 1) {
+      // Reduce existing partners' equity proportionally
+      updatedPartners = updatedPartners.map((p) => ({
+        ...p,
+        equity: p.equity * (1 - newEquity),
+      }));
+    } else if (totalEquity + newEquity > 1) {
+      alert(`Only ${(1 - totalEquity).toFixed(2)} equity left to assign`);
+      return;
+    }
 
-  const newPartner = {
-    id: Date.now().toString(),
-    name: partnerName,
-    equity: newEquity,
+    const newPartner = {
+      id: Date.now().toString(),
+      name: partnerName,
+      equity: newEquity,
+    };
+
+    setPartners([...updatedPartners, newPartner]);
+    setPartnerName('');
+    setPartnerEquity('');
   };
-
-  setPartners([...updatedPartners, newPartner]);
-  setPartnerName('');
-  setPartnerEquity('');
-};
 
 
   const handleTransactionSubmit = async (e: FormEvent<HTMLFormElement>): Promise<void> => {
@@ -233,7 +233,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
         amount: amountNum,
         type: transactionType,
         status: transactionStatus,
-        paidBy: transactionPaidBy.trim(),
+        paidBy: transactionPaidBy.join(', '), // Join paidBy array into a string
         receivedBy: transactionReceivedBy.trim(),
         notes: transactionNotes.trim(),
         date: serverTimestamp(),
@@ -245,7 +245,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
       showMessage('Transaction added successfully!', 'success');
       setTransactionDescription('');
       setTransactionAmount('');
-      setTransactionPaidBy('');
+      setTransactionPaidBy([]);
       setTransactionReceivedBy('');
       setTransactionNotes('');
     } catch (error: unknown) {
@@ -268,7 +268,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
     }
   };
 
- 
+
   const handleDeleteTransaction = async (id: string): Promise<void> => {
     if (window.confirm('Are you sure you want to delete this transaction?')) {
       try {
@@ -341,7 +341,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
       {/* Tab Navigation */}
       <div className="mb-6">
         <div className="flex border-b">
-          {(['partners','transactions'] as ActiveTab[]).map((tab) => (
+          {(['partners', 'transactions'] as ActiveTab[]).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -450,7 +450,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
         </div>
       )}
 
-      
+
       {/* Transactions Tab */}
       {activeTab === 'transactions' && (
         <div className="space-y-6">
@@ -511,75 +511,74 @@ const [showCustomInput, setShowCustomInput] = useState(false);
               </div>
 
               <div>
-                <label className="block font-medium mb-1">Paid By:</label>
-                <div className="w-full border rounded-lg p-4 bg-white shadow-sm">
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Select Partner(s)
-  </label>
-
-  <div className="space-y-2">
-  {partners.map((partner) => (
-    <label
-      key={partner.id}
-      className="flex items-center space-x-2 text-gray-800"
-    >
-      <input
-        type="checkbox"
-        value={partner.name}
-        checked={transactionPaidBy.includes(partner.name)}
-        onChange={(e) => {
-  const { value, checked } = e.target;
-  setTransactionPaidBy((prev) => {
-    if (checked) {
-      return prev.includes(value) ? prev : [...prev, value];
-    } else {
-      return prev.filter((name) => name !== value);
-    }
-  });
-}}
-        className="form-checkbox h-4 w-4 text-blue-600"
-      />
-      <span>{partner.name}</span>
+  <label className="block font-medium mb-1">Paid By:</label>
+  <div className="w-full border rounded-lg p-4 bg-white shadow-sm">
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      Select Partner(s)
     </label>
-  ))}
+    
+    <div className="space-y-2">
+      {partners.map((partner) => (
+        <label
+          key={partner.id}
+          className="flex items-center space-x-2 text-gray-800"
+        >
+          <input
+            type="checkbox"
+            value={partner.name}
+            checked={Array.isArray(transactionPaidBy) && transactionPaidBy.includes(partner.name)}
+            onChange={(e) => {
+              const { value, checked } = e.target;
+              setTransactionPaidBy((prev: string[]) => {
+                // Ensure prev is always an array
+                const prevArray = Array.isArray(prev) ? prev : [];
+                
+                if (checked) {
+                  return prevArray.includes(value) ? prevArray : [...prevArray, value];
+                } else {
+                  return prevArray.filter((name: string) => name !== value);
+                }
+              });
+            }}
+            className="form-checkbox h-4 w-4 text-blue-600"
+          />
+          <span>{partner.name}</span>
+        </label>
+      ))}
+    </div>
+  </div>
 </div>
-
-
-</div>
-
-              </div>
-
               <div>
                 <label className="block font-medium mb-1">Received By:</label>
                 <select
-  value={transactionReceivedBy}
-  onChange={(e) => {
-    const value = e.target.value;
-    setTransactionReceivedBy(value);
-    if (value === "custom") setShowCustomInput(true);
-    else setShowCustomInput(false);
-  }}
-  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-  required
->
-  <option value="">Select partner</option>
-  {partners.map((partner) => (
-    <option key={partner.id} value={partner.name}>
-      {partner.name}
-    </option>
-  ))}
-  <option value="custom">Other (Custom)</option>
-</select>
+                  value={transactionReceivedBy}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    setTransactionReceivedBy(value);
+                    if (value === "custom") setShowCustomInput(true);
+                    else setShowCustomInput(false);
+                  }}
+                  className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                >
+                  <option value="">Select partner</option>
+                  {partners.map((partner) => (
+                    <option key={partner.id} value={partner.name}>
+                      {partner.name}
+                    </option>
+                  ))}
+                  <option value="custom">Other (Custom)</option>
+                </select>
 
-{showCustomInput && (
-  <input
-    type="text"
-    value={customPartnerName}
-    onChange={(e) => setCustomPartnerName(e.target.value)}
-    placeholder="Enter custom partner name"
-    className="mt-2 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-  />
-)}
+                {showCustomInput && (
+                  <input
+                    type="text"
+                    value={customPartnerName}
+                    onChange={(e) => setCustomPartnerName(e.target.value)}
+                    placeholder="Enter custom partner name"
+                    className="mt-2 w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                )}
 
               </div>
 
@@ -671,7 +670,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                             </button>
                           )}
                         </td>
-                        
+
                         <td
                           className={`px-4 py-3 font-medium  ₹{isEditMode ? 'cursor-pointer hover:bg-blue-50' : ''}`}
                           onClick={() => handleCellClick(transaction.id, 'description', transaction.description)}
@@ -696,7 +695,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                             <div className="line-clamp-1">{transaction.description}</div>
                           )}
                         </td>
-                        
+
                         <td
                           className={`px-4 py-3 font-semibold text-gray-900  ₹{isEditMode ? 'cursor-pointer hover:bg-blue-50' : ''}`}
                           onClick={() => handleCellClick(transaction.id, 'amount', transaction.amount)}
@@ -722,7 +721,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                             formatCurrency(transaction.amount)
                           )}
                         </td>
-                        
+
                         <td className="px-4 py-3">
                           <span className={`px-2 py-1 rounded-full text-xs font-medium  ₹{
                             transaction.type === 'Expense' ? 'bg-blue-100 text-blue-800' :
@@ -732,7 +731,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                             {transaction.type}
                           </span>
                         </td>
-                        
+
                         <td
                           className={`px-4 py-3  ₹{isEditMode ? 'cursor-pointer hover:bg-blue-50' : ''}`}
                           onClick={() => handleCellClick(transaction.id, 'status', transaction.status)}
@@ -755,7 +754,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                             </span>
                           )}
                         </td>
-                        
+
                         <td
                           className={`px-4 py-3  ₹{isEditMode ? 'cursor-pointer hover:bg-blue-50' : ''}`}
                           onClick={() => handleCellClick(transaction.id, 'paidBy', transaction.paidBy)}
@@ -780,7 +779,7 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                             <div className="line-clamp-1">{transaction.paidBy}</div>
                           )}
                         </td>
-                        
+
                         <td
                           className={`px-4 py-3  ₹{isEditMode ? 'cursor-pointer hover:bg-blue-50' : ''}`}
                           onClick={() => handleCellClick(transaction.id, 'receivedBy', transaction.receivedBy)}
@@ -805,10 +804,10 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                             <div className="line-clamp-1">{transaction.receivedBy}</div>
                           )}
                         </td>
-                        
+
                         {partners.map((partner) => {
                           const calc = calculatePersonLiability(transaction, partner.id);
-                           
+
                           return (
                             <td key={partner.id} className={`px-4 py-3 font-semibold text-center  ₹{getNetBalanceClass(displayValue)}`}>
                               {transaction.type === 'Expense' && (
@@ -829,11 +828,11 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                             </td>
                           );
                         })}
-                        
+
                         <td className="px-4 py-3 text-sm text-gray-600">
                           {formatDate(transaction.date)}
                         </td>
-                        
+
                         <td
                           className={`px-4 py-3 text-sm text-gray-600  ₹{isEditMode ? 'cursor-pointer hover:bg-blue-50' : ''}`}
                           onClick={() => handleCellClick(transaction.id, 'notes', transaction.notes)}
@@ -886,14 +885,14 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                   </thead>
                   <tbody>
                     {partners.map((partner) => {
-                      const partnerTransactions = transactions.filter(tx => 
+                      const partnerTransactions = transactions.filter(tx =>
                         tx.paidBy === partner.name || tx.receivedBy === partner.name
                       );
-                      
+
                       let totalExpenseNet = 0;
                       let totalReceivableNet = 0;
                       let totalPayableLiability = 0;
-                      
+
                       partnerTransactions.forEach(tx => {
                         const calc = calculatePersonLiability(tx, partner.id);
                         if (tx.type === 'Expense') {
@@ -904,9 +903,9 @@ const [showCustomInput, setShowCustomInput] = useState(false);
                           totalPayableLiability += calc.liability;
                         }
                       });
-                      
+
                       const netBalance = totalExpenseNet + totalReceivableNet - totalPayableLiability;
-                      
+
                       return (
                         <tr key={partner.id} className="border-b border-gray-100">
                           <td className="px-4 py-3 font-medium">{partner.name}</td>
