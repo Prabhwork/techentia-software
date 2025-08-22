@@ -14,11 +14,12 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
     const [transactionAmount, setTransactionAmount] = useState('');
     const [transactionType, setTransactionType] = useState<TransactionType>('Expense');
     const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>('Pending');
-    const [transactionPaidBy, setTransactionPaidBy] = useState<string[]>([]);
-    const [transactionReceivedBy, setTransactionReceivedBy] = useState<string[]>([]);
+   const [transactionPaidBy, setTransactionPaidBy] = useState<string[]>([]);
+const [transactionReceivedBy, setTransactionReceivedBy] = useState<string[]>([]);
+const [customPartnerName, setCustomPartnerName] = useState('');
     const [transactionNotes, setTransactionNotes] = useState('');
-    const [customPartnerName, setCustomPartnerName] = useState('');
-    const [showCustomInput, setShowCustomInput] = useState(false);
+    
+   
 
     const handleTransactionSubmit = async (e: React.FormEvent<HTMLFormElement>): Promise<void> => {
         e.preventDefault();
@@ -66,7 +67,7 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
             setTransactionReceivedBy([]);
             setTransactionNotes('');
             setCustomPartnerName('');
-            setShowCustomInput(false);
+           
         } catch (error: unknown) {
             const errorMessage = error instanceof Error ? error.message : 'Something went wrong';
             showMessage(errorMessage, 'error');
