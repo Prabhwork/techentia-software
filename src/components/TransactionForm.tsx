@@ -15,7 +15,7 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
     const [transactionType, setTransactionType] = useState<TransactionType>('Expense');
     const [transactionStatus, setTransactionStatus] = useState<TransactionStatus>('Pending');
     const [transactionPaidBy, setTransactionPaidBy] = useState<string[]>([]);
-    const [transactionReceivedBy, setTransactionReceivedBy] = useState('');
+    const [transactionReceivedBy, setTransactionReceivedBy] = useState<string[]>([]);
     const [transactionNotes, setTransactionNotes] = useState('');
     const [customPartnerName, setCustomPartnerName] = useState('');
     const [showCustomInput, setShowCustomInput] = useState(false);
@@ -34,15 +34,22 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
                 throw new Error('Please enter a valid amount greater than 0');
             }
 
-            const finalReceivedBy = showCustomInput && customPartnerName ? customPartnerName : transactionReceivedBy;
+
+            const finalPaidBy = transactionPaidBy.map(name =>
+                name === "custom" ? customPartnerName.trim() : name
+            ).join(", ");
+
+            const finalReceivedBy = transactionReceivedBy.map(name =>
+                name === "custom" ? customPartnerName.trim() : name
+            ).join(", ");
 
             const transactionData: Omit<Transaction, 'id'> = {
                 description: transactionDescription.trim(),
                 amount: amountNum,
                 type: transactionType,
                 status: transactionStatus,
-                paidBy: transactionPaidBy.join(', '),
-                receivedBy: finalReceivedBy.trim(),
+                paidBy: finalPaidBy,
+                receivedBy: finalReceivedBy,
                 notes: transactionNotes.trim(),
                 date: serverTimestamp(),
                 createdAt: serverTimestamp()
@@ -56,7 +63,7 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
             setTransactionDescription('');
             setTransactionAmount('');
             setTransactionPaidBy([]);
-            setTransactionReceivedBy('');
+            setTransactionReceivedBy([]);
             setTransactionNotes('');
             setCustomPartnerName('');
             setShowCustomInput(false);
@@ -209,41 +216,86 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
 
                 <div>
                     <label className="block font-medium mb-1">Received By:</label>
-                    <select
-                        value={transactionReceivedBy}
-                        onChange={(e) => {
-                            const value = e.target.value;
-                            setTransactionReceivedBy(value);
-                            if (value === "custom") {
-                                setShowCustomInput(true);
-                            } else {
-                                setShowCustomInput(false);
-                                setCustomPartnerName('');
-                            }
-                        }}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                        required={!showCustomInput}
-                    >
-                        <option value="">Select partner</option>
-                        {partners.map((partner) => (
-                            <option key={partner.id} value={partner.name}>
-                                {partner.name}
-                            </option>
-                        ))}
-                        <option value="custom">Other (Custom)</option>
-                    </select>
+                    <div className="w-full border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                            Select Partner(s) / Business / Custom
+                        </label>
 
-                    {showCustomInput && (
-                        <input
-                            type="text"
-                            value={customPartnerName}
-                            onChange={(e) => setCustomPartnerName(e.target.value)}
-                            placeholder="Enter custom partner name"
-                            className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                            required
-                        />
-                    )}
+                        <div className="space-y-2">
+                            {/* Business option */}
+                            <label className="flex items-center space-x-2 text-gray-800">
+                                <input
+                                    type="checkbox"
+                                    value="Business"
+                                    checked={transactionReceivedBy.includes("Business")}
+                                    onChange={(e) => {
+                                        const { value, checked } = e.target;
+                                        setTransactionReceivedBy((prev: string[]) => {
+                                            if (checked) return prev.includes(value) ? prev : [...prev, value];
+                                            return prev.filter((name) => name !== value);
+                                        });
+                                    }}
+                                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                />
+                                <span>Business</span>
+                            </label>
+
+                            {/* Existing partners */}
+                            {partners.map((partner) => (
+                                <label
+                                    key={partner.id}
+                                    className="flex items-center space-x-2 text-gray-800"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        value={partner.name}
+                                        checked={transactionReceivedBy.includes(partner.name)}
+                                        onChange={(e) => {
+                                            const { value, checked } = e.target;
+                                            setTransactionReceivedBy((prev: string[]) => {
+                                                if (checked) return prev.includes(value) ? prev : [...prev, value];
+                                                return prev.filter((name) => name !== value);
+                                            });
+                                        }}
+                                        className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                    />
+                                    <span>{partner.name}</span>
+                                </label>
+                            ))}
+
+                            {/* Custom option */}
+                            <label className="flex items-center space-x-2 text-gray-800">
+                                <input
+                                    type="checkbox"
+                                    value="custom"
+                                    checked={transactionReceivedBy.includes("custom")}
+                                    onChange={(e) => {
+                                        const { checked } = e.target;
+                                        setTransactionReceivedBy((prev: string[]) => {
+                                            if (checked) return [...prev, "custom"];
+                                            return prev.filter((name) => name !== "custom");
+                                        });
+                                    }}
+                                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                />
+                                <span>Other (Custom)</span>
+                            </label>
+
+                            {/* Custom input field */}
+                            {transactionReceivedBy.includes("custom") && (
+                                <input
+                                    type="text"
+                                    value={customPartnerName}
+                                    onChange={(e) => setCustomPartnerName(e.target.value)}
+                                    placeholder="Enter custom partner name"
+                                    className="mt-2 w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    required
+                                />
+                            )}
+                        </div>
+                    </div>
                 </div>
+
 
                 <div className="md:col-span-2 lg:col-span-3">
                     <label className="block font-medium mb-1">Notes:</label>
