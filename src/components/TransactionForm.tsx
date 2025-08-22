@@ -128,11 +128,11 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
                     <label className="block font-medium mb-1">Paid By:</label>
                     <div className="w-full border border-gray-300 rounded-lg p-4 bg-white shadow-sm">
                         <label className="block text-sm font-medium text-gray-700 mb-2">
-                            Select Partner(s) / Business
+                            Select Partner(s) / Business / Custom
                         </label>
 
                         <div className="space-y-2">
-                            {/* Add "Business" option */}
+                            {/* Business option */}
                             <label className="flex items-center space-x-2 text-gray-800">
                                 <input
                                     type="checkbox"
@@ -141,11 +141,8 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
                                     onChange={(e) => {
                                         const { value, checked } = e.target;
                                         setTransactionPaidBy((prev) => {
-                                            if (checked) {
-                                                return prev.includes(value) ? prev : [...prev, value];
-                                            } else {
-                                                return prev.filter((name) => name !== value);
-                                            }
+                                            if (checked) return prev.includes(value) ? prev : [...prev, value];
+                                            return prev.filter((name) => name !== value);
                                         });
                                     }}
                                     className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
@@ -153,7 +150,7 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
                                 <span>Business</span>
                             </label>
 
-                            {/* Existing partners list */}
+                            {/* Existing partners */}
                             {partners.map((partner) => (
                                 <label
                                     key={partner.id}
@@ -166,11 +163,8 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
                                         onChange={(e) => {
                                             const { value, checked } = e.target;
                                             setTransactionPaidBy((prev) => {
-                                                if (checked) {
-                                                    return prev.includes(value) ? prev : [...prev, value];
-                                                } else {
-                                                    return prev.filter((name) => name !== value);
-                                                }
+                                                if (checked) return prev.includes(value) ? prev : [...prev, value];
+                                                return prev.filter((name) => name !== value);
                                             });
                                         }}
                                         className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
@@ -178,9 +172,39 @@ export default function TransactionForm({ partners, showMessage }: TransactionFo
                                     <span>{partner.name}</span>
                                 </label>
                             ))}
+
+                            {/* Custom option toggle */}
+                            <label className="flex items-center space-x-2 text-gray-800">
+                                <input
+                                    type="checkbox"
+                                    value="custom"
+                                    checked={transactionPaidBy.includes("custom")}
+                                    onChange={(e) => {
+                                        const { checked } = e.target;
+                                        setTransactionPaidBy((prev) => {
+                                            if (checked) return [...prev, "custom"];
+                                            return prev.filter((name) => name !== "custom");
+                                        });
+                                    }}
+                                    className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                />
+                                <span>Other (Custom)</span>
+                            </label>
+
+                            {/* Show input only if custom is checked */}
+                            {transactionPaidBy.includes("custom") && (
+                                <input
+                                    type="text"
+                                    placeholder="Enter custom name"
+                                    value={customPartnerName}
+                                    onChange={(e) => setCustomPartnerName(e.target.value)}
+                                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-2"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
+
 
 
                 <div>
