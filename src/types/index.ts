@@ -1,70 +1,40 @@
+// Types and Interfaces
 export interface Partner {
   id: string;
   name: string;
-  equity: number;
+  equity: number; // decimal value between 0 and 1
 }
 
 export interface Transaction {
-  id: number;
+  id: string;
   description: string;
-  type: 'Expense' | 'Receivable' | 'Payable';
   amount: number;
-  receivedBy: string;
+  type: TransactionType;
+  status: TransactionStatus;
   paidBy: string;
-  status: string;
+  receivedBy: string;
   notes: string;
+  date: any;
+  createdAt: any;
 }
 
 export interface PersonCalculation {
   liability: number;
-  payment: number;
-  receivable: number;
   net: number;
+  share: number;
 }
 
-export interface PersonBalance {
-  paid: number;
-  liability: number;
-  receivables: number;
-  totalNet: number;
+export interface Message {
+  text: string;
+  type: 'success' | 'error';
 }
 
 export interface EditingCell {
-  txId: number;
-  field: keyof Transaction;
-  currentValue: string | number;
+  txId: string;
+  field: string;
+  value: any;
 }
 
-export interface EditableCellProps {
-  value: string | number;
-  onSave: (value: string | number) => void;
-  type?: 'text' | 'number' | 'select';
-  options?: string[];
-  field?: keyof Transaction;
-}
-
-export interface NewTransaction {
-  description: string;
-  type: 'Expense' | 'Receivable' | 'Payable';
-  amount: number;
-  receivedBy: string;
-  paidBy: string;
-  status: string;
-  notes: string;
-}
-
-export interface NewPartner {
-  name: string;
-  equity: number;
-}
-
-export interface TransactionTableProps {
-  transactions: Transaction[];
-  partners: Partner[];
-  isEditMode: boolean;
-  editingCell: EditingCell | null;
-  onCellClick: (txId: number, field: keyof Transaction, currentValue: string | number) => void;
-  onUpdateTransaction: (id: number, field: keyof Transaction, value: string | number) => void;
-  onDeleteTransaction: (id: number) => void;
-  setEditingCell: (cell: EditingCell | null) => void;
-}
+export type TransactionType = 'Expense' | 'Receivable' | 'Payable';
+export type TransactionStatus = 'Pending' | 'Completed' | 'Cancelled';
+export type ActiveTab = 'transactions' | 'partners';
